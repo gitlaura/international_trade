@@ -4,8 +4,6 @@ require_relative 'sort_by_sku.rb'
 require_relative 'currency_converter.rb'
 
 class Calculator
-	attr_reader :rates, :transactions, :sorted_transactions, :converted_amounts
-
 	def get_conversion_rates(rate_file)
 		rates_parser = RatesParser.new
 		rates_parser.parse(rate_file)
@@ -22,10 +20,11 @@ class Calculator
 	end
 
 	def convert_transactions(to_currency, rates, sorted_transactions)
-		CurrencyConverter.new.convert(to_currency, rates, sorted_transactions)
+		currency_converter = CurrencyConverter.new(to_currency, rates)
+		currency_converter.convert(sorted_transactions)
 	end
 
 	def add_sorted_transactions(amounts)
-		amounts.reduce(:+)
+		amounts.reduce(:+).round(2)
 	end
 end

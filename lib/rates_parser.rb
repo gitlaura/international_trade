@@ -8,7 +8,7 @@ class RatesParser
 	end
 
 	def parse(xml_file)
-		file = File.open(xml_file).read
+		file = File.open(xml_file)
 
 		file.each_line do |line|
 			line.strip!
