@@ -4,13 +4,14 @@ class Runner
 	attr_reader :calculator
 
 	def initialize
-		@calcuator = Calculator.new
+		@calculator = Calculator.new
 	end
 
-	def run_international_calculator(sku, transactions_file, rates_file)
-		@calculator.get_rates(rates_file)
+	def run_international_calculator(sku = "DM1210", transactions_file = "SAMPLE_TRANS.csv", rates_file = "SAMPLE_RATES.xml", final_currency = "USD")
+		@calculator.get_conversion_rates(rates_file)
 		@calculator.get_transactions(transactions_file)
 		@calculator.sort_transactions(sku)
-		@calculator.add_sorted_transactions(sku)
+		@calculator.convert_transactions(final_currency)
+		@calculator.add_sorted_transactions
 	end
 end

@@ -1,4 +1,4 @@
-require 'rate'
+require_relative 'rate.rb'
 
 class RatesParser
 	attr_reader :all_rates

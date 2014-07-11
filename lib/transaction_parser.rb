@@ -1,22 +1,17 @@
 require_relative 'transaction.rb'
 
 class TransactionParser
-	attr_reader :all_transactions, :current_transaction
-
 	def parse(csv_file)
-		@all_transactions = []
+		all_transactions = []
 		file = File.open(csv_file).read
 		file.each_line do |line|
-			create_transaction(line)
-			@all_transactions << @current_transaction
+			all_transactions << create_transaction(line)
 		end
+		all_transactions
 	end
 
 	def create_transaction(line)
 		store, sku, amount = line.chomp.split(",")
-		@current_transaction = Transaction.new
-		@current_transaction.store = store
-		@current_transaction.sku = sku
-		@current_transaction.amount(amount)
+		Transaction.new(store, sku, amount)
 	end
 end

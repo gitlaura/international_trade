@@ -1,5 +1,5 @@
 class SortBySku
-	def sort(transactions, sku)
+	def sort(sku, transactions)
 		output = []
 		transactions.each do |trans|
 			if trans.sku == sku
