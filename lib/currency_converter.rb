@@ -5,7 +5,6 @@ class CurrencyConverter
 		@to_currency = to_currency
 		@rates = rates
 		@amounts = []
-		@final_conversion_rate = 1.00
 	end
 
 	def convert(transactions)
@@ -29,40 +28,31 @@ class CurrencyConverter
 		(rate * original_amount.to_f).round(2)
 	end
 
-	def get_conversion_rate(original_currency)
+	def get_conversion_rate(original_currency, final_conversion_rate = 1.00)
 		if exact_match?(original_currency)
-			new_rate = calculate_final_rate(original_currency)
-			final_rate = @final_conversion_rate * new_rate
-			@final_conversion_rate = 1.00
-			return final_rate
-		elsif from_currency_matches?(original_currency)
-			new_rate = calculate_rate(original_currency)
-			@final_conversion_rate *=  new_rate
-			new_original_currency = update_original_currency(original_currency)
-			get_conversion_rate(new_original_currency)
+			new_rate = get_exact_matching_rate(original_currency)
+			return final_conversion_rate * new_rate.rate
+		else
+			current_rate = rate_with_same_from_currency(original_currency)
+			final_conversion_rate *=  current_rate.rate
+			new_original_currency = current_rate.to_currency
+			get_conversion_rate(new_original_currency, final_conversion_rate)
 		end
 	end
 
 	def exact_match?(original_currency)
-		!(@rates.select {|rate| rate.from_currency == original_currency && rate.to_currency == @to_currency}).empty?
+		rates_with_exact_matches(original_currency).size > 0
 	end
 
-	def calculate_final_rate(original_currency)
-		matching_rates = @rates.select {|rate| rate.from_currency == original_currency && rate.to_currency == @to_currency}
-		matching_rates[0].rate
+	def get_exact_matching_rate(original_currency)
+		rates_with_exact_matches(original_currency)[0]
 	end
 
-	def from_currency_matches?(original_currency)
-		!(@rates.select {|rate| rate.from_currency == original_currency}).empty?
+	def rates_with_exact_matches(original_currency)
+		@rates.select {|rate| rate.from_currency == original_currency && rate.to_currency == @to_currency}
 	end
 
-	def calculate_rate(original_currency, rates = @rates)
-		matching_rates = @rates.select {|rate| rate.from_currency == original_currency}
-		matching_rates[0].rate
-	end
-
-	def update_original_currency(original_currency)
-		matching_rates = @rates.select {|rate| rate.from_currency == original_currency}
-		matching_rates[0].to_currency
+	def rate_with_same_from_currency(original_currency)
+		(@rates.select {|rate| rate.from_currency == original_currency})[0]
 	end
 end

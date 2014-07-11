@@ -1,17 +1,16 @@
 require 'currency_converter'
-require 'rate'
-require 'transaction'
+require 'ostruct'
 
 describe "Currency Converter" do 
 	before(:each) do
 		to_currency = "USD"
-		rate_one = Rate.new("AUD","CAD",1.0079)
-		rate_two = Rate.new("CAD","USD",1.0090)
-		rate_three = Rate.new("USD","CAD",0.9911)
+		rate_one = OpenStruct.new(:from_currency => "AUD", :to_currency => "CAD", :rate => 1.0079)
+		rate_two = OpenStruct.new(:from_currency => "CAD", :to_currency => "USD", :rate => 1.0090)
+		rate_three = OpenStruct.new(:from_currency => "USD", :to_currency => "CAD", :rate => 0.9911)
 		rates = [rate_one, rate_two, rate_three]
-		@trans_two = Transaction.new("Nashua","DM1182","58.58 AUD")
-		@trans_three = Transaction.new("Camden","DM1182","54.64 USD")
-		@sorted_transactions = [@trans_two, @trans_three]
+		@trans_one = OpenStruct.new(:store => "Nashua", :sku => "DM1182", :original_amount => "58.58", :original_currency => "AUD")
+		@trans_two = OpenStruct.new(:store => "Camden", :sku => "DM1182", :original_amount => "54.64", :original_currency => "USD")
+		@sorted_transactions = [@trans_one, @trans_two]
 		@currency_converter = CurrencyConverter.new(to_currency, rates)
 	end
 
@@ -21,8 +20,8 @@ describe "Currency Converter" do
 	end
 
 	it "determines if a conversion is not needed" do 
-		expect(@currency_converter.conversion_unnecessary?(@trans_two)).to eq(false)
-		expect(@currency_converter.conversion_unnecessary?(@trans_three)).to eq(true)
+		expect(@currency_converter.conversion_unnecessary?(@trans_one)).to eq(false)
+		expect(@currency_converter.conversion_unnecessary?(@trans_two)).to eq(true)
 	end
 
 	it "converts amounts" do 
@@ -31,34 +30,23 @@ describe "Currency Converter" do
 		expect(amount).to eq(50.45)
 	end
 
-	it "gets conversion rate for any currency to final currency" do 
-		expect(@currency_converter).to receive(:exact_match?) {true}
-		expect(@currency_converter).to receive(:calculate_final_rate) {1.0090}
-		final_rate = @currency_converter.get_conversion_rate("AUD")
-		expect(final_rate).to eq(1.0090)
-	end
-
 	it "checks for an exact match of currencies" do 
 		expect(@currency_converter.exact_match?("CAD")).to eq(true)
 		expect(@currency_converter.exact_match?("AUD")).to eq(false)
 	end
 
-	it "calculates final rate" do
-		rate = @currency_converter.calculate_final_rate("CAD")
-		expect(rate).to eq(1.0090)
+	it "gets exact matching rate object" do
+		rate = @currency_converter.get_exact_matching_rate("CAD")
+		expect(rate.rate).to eq(1.0090)
 	end
 
-	it "checks for rates with the same from_currencies" do
-		expect(@currency_converter.from_currency_matches?("AUD")).to eq(true)
+	it "returns rates that match to and from currency" do
+		rates = @currency_converter.rates_with_exact_matches("CAD")
+		expect(rates.size).to eq(1)
 	end
 
-	it "calculates rate from the same from_currencies" do
-		rate = @currency_converter.calculate_rate("AUD")
-		expect(rate).to eq(1.0079)
-	end
-
-	it "updates from_currency for next conversion" do
-		rate = @currency_converter.update_original_currency("AUD")
-		expect(rate).to eq("CAD")
+	it "returns rates that just the from currency" do
+		rates = @currency_converter.rate_with_same_from_currency("AUD")
+		expect(rates).to be_a(Object)
 	end
 end
