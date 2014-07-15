@@ -1,17 +1,11 @@
 require_relative 'calculator.rb'
 
 class Runner
-	attr_reader :calculator
-
-	def initialize
-		@calculator = Calculator.new
-	end
-
-	def run_international_calculator(sku = "DM1210", transactions_file = "SAMPLE_TRANS.csv", rates_file = "SAMPLE_RATES.xml", final_currency = "USD")
-		@calculator.get_conversion_rates(rates_file)
-		@calculator.get_transactions(transactions_file)
-		@calculator.sort_transactions(sku)
-		@calculator.convert_transactions(final_currency)
-		@calculator.add_sorted_transactions
+	def run_international_calculator(sku, transactions_file, rates_file, final_currency)
+		rates = Calculator.get_conversion_rates(rates_file)
+		transactions = Calculator.get_transactions(transactions_file)
+		sorted_transactions = Calculator.sort_transactions(sku, transactions)
+		converted_totals = Calculator.convert_transactions(final_currency,rates,sorted_transactions)
+		Calculator.add_sorted_transactions(converted_totals)
 	end
 end
