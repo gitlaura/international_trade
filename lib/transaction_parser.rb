@@ -13,9 +13,9 @@ class TransactionParser
 		end
 
 		def create_transaction(line)
-			@store, @sku, @amount = line.chomp.split(",")
-			@original_amount, @original_currency = @amount.split(" ")
-			OpenStruct.new(:store => @store, :sku => @sku, :original_amount => @original_amount, :original_currency => @original_currency)
+			store, sku, amount = line.chomp.split(",")
+			original_amount, original_currency = amount.split(" ")
+			OpenStruct.new(:store => store, :sku => sku, :original_amount => original_amount, :original_currency => original_currency)
 		end
 
 	end

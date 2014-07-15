@@ -8,7 +8,6 @@ describe "Sort by SKU" do
 		trans_003 = OpenStruct.new(:store => "Camden", :sku => "DM1182", :original_amount => "54.64", :original_currency => "USD")
 		transactions = [trans_001, trans_002, trans_003]
 		sku = "DM1182"
-
 		expect(SortBySku.sort(sku, transactions)).to eq([trans_002, trans_003])
 	end
 end
